@@ -13,15 +13,23 @@
 
     <script>
         async function processImage() {
-            const url = document.getElementById('imageUrl').value;
-            const response = await fetch('https://your-backend-url.com/process', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
-            });
-            const data = await response.json();
-            document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-        }
+    const input = document.getElementById('imageUrl').value;
+    const assetId = input.replace('rbxassetid://', '').trim(); // Extract the ID
+    const imageUrl = `https://www.roblox.com/asset/?id=${assetId}`;
+
+    try {
+        const response = await fetch('https://your-backend-url.com/process', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: imageUrl })
+        });
+        const data = await response.json();
+        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+        document.getElementById('output').textContent = `Error: ${error.message}`;
+    }
+}
+
     </script>
 </body>
 </html>
