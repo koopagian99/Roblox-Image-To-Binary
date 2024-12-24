@@ -21,7 +21,7 @@ def process_image():
     image_url = data.get('url')
 
     # Print the received URL for debugging
-    log(f"Received image URL: {image_url}")
+    print(f"Received image URL: {image_url}")
 
     try:
         # Fetch the image data from the URL
