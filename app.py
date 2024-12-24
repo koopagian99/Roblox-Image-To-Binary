@@ -52,10 +52,9 @@ def process_image():
             if batch:
                 yield json.dumps(batch) + "\n"
 
-         def start_decomp():
-             
-             yield json.dumps([width, height]) + "\n"
-             generate_batches()
+        def start_decomp():
+            yield json.dumps([width, height]) + "\n"
+            generate_batches()
         
         # Stream the response
         return Response(start_decomp(), content_type='application/json')
