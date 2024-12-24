@@ -39,6 +39,8 @@ def process_image():
         pixels = img.load()
 
         def generate_batches():
+            yield json.dumps([width, height]) + "\n"
+            
             # Generator function to yield batches of pixel data
             batch = []
             for y in range(height):
@@ -51,13 +53,9 @@ def process_image():
             # Yield any remaining pixels in the last batch
             if batch:
                 yield json.dumps(batch) + "\n"
-
-        def start_decomp():
-            yield json.dumps([width, height]) + "\n"
-            generate_batches()
-        
+                
         # Stream the response
-        return Response(start_decomp(), content_type='application/json')
+        return Response(generate_batches(), content_type='application/json')
 
     except requests.exceptions.RequestException as e:
         # Log the error and return a detailed message
