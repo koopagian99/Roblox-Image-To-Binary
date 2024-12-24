@@ -43,7 +43,7 @@ def process_image():
                 binary_data.append([r, g, b, a])
 
         # Return the binary data
-        return jsonify(binary_data)  # Just return the first 10 pixels for example
+        return binary_data  # Just return the first 10 pixels for example
 
     except requests.exceptions.RequestException as e:
         # Log the error and return a detailed message
