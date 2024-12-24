@@ -53,7 +53,7 @@ def process_image():
                 yield json.dumps(batch) + "\n"
 
         # Stream the response
-        return Response(generate_batches(), content_type='application/json')
+        return jsonify( generate_batches() )
 
     except requests.exceptions.RequestException as e:
         # Log the error and return a detailed message
