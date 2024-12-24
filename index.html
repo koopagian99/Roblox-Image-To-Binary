@@ -33,8 +33,38 @@
                     throw new Error(`Error: ${response.statusText}`);
                 }
 
-                const data = await response.json();
-                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                const outputElement = document.getElementById('output');
+                outputElement.textContent = ''; // Clear previous output
+
+                let receivedText = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    // Decode and append the streamed data
+                    receivedText += decoder.decode(value, { stream: true });
+                    
+                    // Process each line of JSON data
+                    const lines = receivedText.split('\n');
+                    for (let i = 0; i < lines.length - 1; i++) {
+                        const line = lines[i];
+                        if (line.trim()) {
+                            const batch = JSON.parse(line);
+                            outputElement.textContent += JSON.stringify(batch, null, 2) + '\n';
+                        }
+                    }
+
+                    // Retain the last incomplete line (if any)
+                    receivedText = lines[lines.length - 1];
+                }
+
+                // Process any remaining data
+                if (receivedText.trim()) {
+                    const batch = JSON.parse(receivedText);
+                    outputElement.textContent += JSON.stringify(batch, null, 2) + '\n';
+                }
             } catch (error) {
                 document.getElementById('output').textContent = `Error: ${error.message}`;
             }
