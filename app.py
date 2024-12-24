@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import the CORS package
+
 from PIL import Image
 import requests
 from io import BytesIO
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/process', methods=['POST'])
 def process_image():
