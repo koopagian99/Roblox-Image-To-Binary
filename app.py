@@ -1,9 +1,11 @@
-from flask import Flask, request, Response
+from flask import Flask, request, jsonify, Response
+from flask_cors import CORS
 import requests
 from PIL import Image
 import io
 
 app = Flask(__name__)
+CORS(app, origins=["https://koopagian99.github.io"])  # Allow requests from your GitHub Pages domain
 
 @app.route('/decode', methods=['GET'])
 def decode():
@@ -22,15 +24,17 @@ def decode():
         image = image.convert('RGBA')
         width, height = image.size
 
-        def generate_chunks():
+        def generate_grayscale():
             yield f'{{"size": {{"x": {width}, "y": {height}}}, "pixels": ['
             for i, (r, g, b, a) in enumerate(image.getdata()):
-                yield f'{r},{g},{b},{a}'
+                # Convert to grayscale
+                grayscale = int(0.299 * r + 0.587 * g + 0.114 * b)
+                yield str(grayscale)
                 if i < (width * height - 1):
                     yield ','
             yield ']}'  # Close the JSON object
 
-        return Response(generate_chunks(), content_type='application/json')
+        return Response(generate_grayscale(), content_type='application/json')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
