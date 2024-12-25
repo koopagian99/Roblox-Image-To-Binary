@@ -62,7 +62,7 @@ def decode():
                 
                 # If the buffer has 1024 pixels (4096 values), yield the buffer
                 if len(buffer) >= 4096:  # 1024 pixels * 4 values (RGBA)
-                    logging.debug(f'Yielding 1024 pixels (4096 values), total processed: {total_pixels}')
+                    logging.debug(f'Yielding 1024 pixels (4096 values), total processed: {pixel_count}')
                     yield ','.join(map(str, buffer))
                     buffer = []  # Reset the buffer
 
