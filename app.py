@@ -6,7 +6,7 @@ import io
 import logging
 
 app = Flask(__name__)
-CORS(app, origins=["https://koopagian99.github.io"])  # Allow requests from your GitHub Pages domain
+CORS(app, origins=["https://koopagian99.github.io", "https://www.roblox.com"])  # Allow requests from your GitHub Pages domain
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
