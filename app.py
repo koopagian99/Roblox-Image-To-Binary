@@ -30,13 +30,13 @@ def decode():
         response = requests.get(url)
         response.raise_for_status()
 
-        logging.info(f'Image downloaded and decoded. Size: {width}x{height}')
-
         # Decode the image
         image = Image.open(io.BytesIO(response.content))
         image = image.convert('RGBA')
         width, height = image.size
 
+        logging.info(f'Image downloaded and decoded. Size: {width}x{height}')
+        
         def generate_chunks():
             logging.info('Generating pixel data...')
             
