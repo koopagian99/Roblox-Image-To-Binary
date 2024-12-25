@@ -48,28 +48,37 @@ def decode():
         logging.info(f'Image downloaded and decoded. Size: {width}x{height}')
         
         def generate_chunks():
-            logging.info('Generating pixel data...')
+            logging.info(f'Generating pixel data for image {width}x{height}...')
             
             yield f'{{"size": {{"x": {width}, "y": {height}}}, "pixels": ['
-            pixel_count = 0
             buffer = []
-
+            total_pixels = 0  # Keep track of the total number of pixels processed
+            first_chunk = True
+        
             # Iterate over the image pixels
             for r, g, b, a in image.getdata():
                 # Add RGBA values to the buffer
                 buffer.extend([r, g, b, a])
-                pixel_count += 1
-                
+                total_pixels += 1
+        
                 # If the buffer has 1024 pixels (4096 values), yield the buffer
                 if len(buffer) >= 4096:  # 1024 pixels * 4 values (RGBA)
-                    logging.debug(f'Yielding 1024 pixels (4096 values), total processed: {pixel_count}')
-                    yield ','.join(map(str, buffer))
+                    if not first_chunk:
+                        yield ','  # Add a comma before the next chunk
+                    first_chunk = False
+                    logging.debug(f'Yielding 1024 pixels (4096 values), total processed: {total_pixels}')
+                    yield ','.join(map(str, buffer))  # Join buffer into a string without extra comma
                     buffer = []  # Reset the buffer
-
-            # Yield any remaining pixels in the buffer
+        
+            # Yield any remaining pixels in the buffer (even if they're less than 1024 pixels)
             if buffer:
+                if not first_chunk:
+                    yield ','  # Add a comma before the final chunk
+                logging.debug(f'Yielding remaining pixels, total processed: {total_pixels}')
                 yield ','.join(map(str, buffer))
-            yield ']}'  # Close the JSON object
+        
+            yield ']}'
+            logging.info(f'Total pixels processed: {total_pixels}')
             
             logging.info('Generated pixel data sent back to client')
 
