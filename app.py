@@ -49,12 +49,32 @@ def decode():
         def generate_chunks():
             logging.info('Generating pixel data...')
             
+            # Initialize buffer to store 1024 pixels (4 KB)
+            buffer = bytearray(1024 * 4)  # 1024 pixels, each 4 bytes (RGBA)
+            pixel_count = 0
+            buffer_index = 0
+            
             yield f'{{"size": {{"x": {width}, "y": {height}}}, "pixels": ['
-            for i, (r, g, b, a) in enumerate(image.getdata()):
-                yield f'{r},{g},{b},{a}'
-                if i < (width * height - 1):
-                    yield ','
-            yield ']}'  # Close the JSON object
+            
+            # Iterate over the image pixels
+            for r, g, b, a in image.getdata():
+                # Store the RGBA values in the buffer
+                buffer[buffer_index:buffer_index+4] = bytes([r, g, b, a])
+                buffer_index += 4
+                pixel_count += 1
+                
+                # If buffer is full (1024 pixels), yield it and reset the buffer
+                if pixel_count == 1024:
+                    yield ''.join(map(chr, buffer))
+                    buffer_index = 0
+                    pixel_count = 0
+                    buffer = bytearray(1024 * 4)  # Reset buffer
+            
+            # Yield any remaining pixels that didn't fill the last buffer
+            if pixel_count > 0:
+                yield ''.join(map(chr, buffer[:buffer_index]))
+            
+            yield ']}'
 
             logging.info('Generated pixel data sent back to client')
 
