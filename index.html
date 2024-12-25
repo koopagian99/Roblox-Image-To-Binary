@@ -32,6 +32,16 @@
 
     try {
         const response = await fetch(`https://roblox-image-to-binary.onrender.com/decode?id=${assetId}`);
+
+        console.log(`Starting request to decode asset ID: ${assetId}`);
+
+        // Check if the response is ok
+        if (!response.ok) {
+            console.error('Failed to fetch data:', response.statusText);
+            output.textContent = `Error: ${response.statusText}`;
+            return;
+        }
+        
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         
