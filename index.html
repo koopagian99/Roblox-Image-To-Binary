@@ -4,28 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roblox Texture Decoder</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input { margin: 10px; padding: 10px; }
+        button { padding: 10px 20px; }
+        pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
+    </style>
 </head>
 <body>
     <h1>Roblox Texture Decoder</h1>
-    <input type="text" id="assetId" placeholder="Enter Roblox Asset ID">
-    <button onclick="decodeImage()">Decode</button>
+    <p>Enter a Roblox asset ID to decode its texture into RGBA data.</p>
+    <input type="text" id="assetId" placeholder="Enter Asset ID">
+    <button onclick="decodeTexture()">Decode</button>
     <pre id="output"></pre>
 
     <script>
-        async function decodeImage() {
+        async function decodeTexture() {
             const assetId = document.getElementById('assetId').value;
+            const output = document.getElementById('output');
+
             if (!assetId) {
                 alert('Please enter an asset ID.');
                 return;
             }
 
-            const response = await fetch(`/decode?id=${assetId}`);
-            const data = await response.json();
+            output.textContent = 'Processing...';
 
-            if (data.error) {
-                document.getElementById('output').textContent = `Error: ${data.error}`;
-            } else {
-                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            try {
+                const response = await fetch(`https://your-backend.onrender.com/decode?id=${assetId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    output.textContent = `Error: ${data.error}`;
+                } else {
+                    output.textContent = JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                output.textContent = `Error: ${error.message}`;
             }
         }
     </script>
