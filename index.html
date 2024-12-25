@@ -34,7 +34,7 @@
         const response = await fetch(`https://roblox-image-to-binary.onrender.com/decode?id=${assetId}`);
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
-
+        
         let result = '';
         let done = false;
 
@@ -42,6 +42,7 @@
             const { value, done: streamDone } = await reader.read();
             done = streamDone;
             result += decoder.decode(value, { stream: !done });
+            output.textContent = `Processing... ${result}`;
         }
 
         const parsedData = JSON.parse(result);
