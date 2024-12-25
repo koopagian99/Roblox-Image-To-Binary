@@ -50,33 +50,24 @@ def decode():
         def generate_chunks():
             logging.info('Generating pixel data...')
             
-            # Initialize buffer to store 1024 pixels (4 KB)
-            buffer = bytearray(1024 * 4)  # 1024 pixels, each 4 bytes (RGBA)
-            pixel_count = 0
-            buffer_index = 0
-            
             yield f'{{"size": {{"x": {width}, "y": {height}}}, "pixels": ['
-            
+            pixel_count = 0
+            buffer = []
+
             # Iterate over the image pixels
             for r, g, b, a in image.getdata():
-                # Store the RGBA values in the buffer
-                buffer[buffer_index:buffer_index+4] = bytes([r, g, b, a])
-                buffer_index += 4
+                # Add RGBA values to the buffer
+                buffer.extend([r, g, b, a])
                 pixel_count += 1
                 
-                # If buffer is full (1024 pixels), yield it and reset the buffer
-                if pixel_count == 1024:
-                    # Encode the buffer as Base64 and yield it
-                    yield f'"{base64.b64encode(buffer).decode("utf-8")}"'
-                    buffer_index = 0
-                    pixel_count = 0
-                    buffer = bytearray(1024 * 4)  # Reset buffer
-            
-            # Yield any remaining pixels that didn't fill the last buffer
-            if pixel_count > 0:
-                yield f'"{base64.b64encode(buffer[:buffer_index]).decode("utf-8")}"'
-            
-            yield ']}'
+                # If the buffer has 256 pixels (1024 values), yield the buffer
+                if len(buffer) >= 1024:  # 256 pixels * 4 values (RGBA)
+                    yield ','.join(map(str, buffer))
+                    buffer = []  # Reset the buffer
+
+            # Yield any remaining pixels in the buffer
+            if buffer:
+                yield ','.join(map(str, buffer))
             
             logging.info('Generated pixel data sent back to client')
 
