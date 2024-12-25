@@ -19,6 +19,15 @@ def decode():
         logging.error('No asset ID provided')
         return jsonify({'error': 'Asset ID is required'}), 400
 
+    # Log the Referer and Origin headers to see where the request is coming from
+    referer = request.headers.get('Referer')
+    origin = request.headers.get('Origin')
+
+    if referer:
+        logging.info(f'Referer: {referer}')
+    if origin:
+        logging.info(f'Origin: {origin}')
+    
     logging.info(f'Received request for asset ID: {asset_id}')
     
     try:
