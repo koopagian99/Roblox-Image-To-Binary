@@ -11,8 +11,6 @@ CORS(app, origins=["https://koopagian99.github.io"])  # Allow requests from your
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-logging.info('Starting Shit i fucking hate ChatGTP')
-
 @app.route('/decode', methods=['GET'])
 def decode():
     asset_id = request.args.get('id')
