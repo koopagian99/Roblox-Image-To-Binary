@@ -56,6 +56,8 @@ def decode():
                     yield ','
             yield ']}'  # Close the JSON object
 
+            logging.info('Generated pixel data sent back to client')
+
         return Response(generate_chunks(), content_type='application/json')
     except Exception as e:
         logging.error(f'Error occurred: {str(e)}')
