@@ -52,11 +52,11 @@
             const { value, done: streamDone } = await reader.read();
             done = streamDone;
             result += decoder.decode(value, { stream: !done });
-            output.textContent = `Processing... ${result}`;
+            // output.textContent = `Processing... ${result}`;
         }
 
-        const parsedData = JSON.parse(result);
-        output.textContent = JSON.stringify(parsedData, null, 2);
+        // const parsedData = JSON.parse(result);
+        // output.textContent = JSON.stringify(parsedData, null, 2);
     } catch (error) {
         output.textContent = `Error: ${error.message}`;
     }
