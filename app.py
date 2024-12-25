@@ -1,8 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, Response
 import requests
 from PIL import Image
 import io
-import base64
 
 app = Flask(__name__)
 
@@ -22,25 +21,16 @@ def decode():
         image = Image.open(io.BytesIO(response.content))
         image = image.convert('RGBA')
         width, height = image.size
-        rgba_data = list(image.getdata())
 
-        # Create buffers
-        buffer_size = 1024  # Number of pixels per buffer
-        buffers = [
-            rgba_data[i:i + buffer_size]
-            for i in range(0, len(rgba_data), buffer_size)
-        ]
+        def generate_chunks():
+            yield f'{{"size": {{"x": {width}, "y": {height}}}, "pixels": ['
+            for i, (r, g, b, a) in enumerate(image.getdata()):
+                yield f'{r},{g},{b},{a}'
+                if i < (width * height - 1):
+                    yield ','
+            yield ']}'  # Close the JSON object
 
-        # Encode buffers as base64
-        encoded_buffers = [
-            base64.b64encode(bytes(sum(buffer, ()))).decode('utf-8')
-            for buffer in buffers
-        ]
-
-        return jsonify({
-            'size': {'x': width, 'y': height},
-            'buffers': encoded_buffers
-        })
+        return Response(generate_chunks(), content_type='application/json')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
