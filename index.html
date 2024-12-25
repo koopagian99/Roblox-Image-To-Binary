@@ -19,30 +19,53 @@
     <pre id="output"></pre>
 
     <script>
-        async function decodeTexture() {
-            const assetId = document.getElementById('assetId').value;
-            const output = document.getElementById('output');
+    async function decodeTexture() {
+        const assetId = document.getElementById('assetId').value;
+        const output = document.getElementById('output');
 
-            if (!assetId) {
-                alert('Please enter an asset ID.');
+        if (!assetId) {
+            alert('Please enter an asset ID.');
+            return;
+        }
+
+        output.textContent = 'Processing...';
+
+        try {
+            const response = await fetch(`https://roblox-image-to-binary.onrender.com/decode?id=${assetId}`);
+            const data = await response.json();
+
+            if (data.error) {
+                output.textContent = `Error: ${data.error}`;
                 return;
             }
 
-            output.textContent = 'Processing...';
+            // Decode and combine buffers
+            const size = data.size;
+            const pixelArray = [];
 
-            try {
-                const response = await fetch(`https://your-backend.onrender.com/decode?id=${assetId}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    output.textContent = `Error: ${data.error}`;
-                } else {
-                    output.textContent = JSON.stringify(data, null, 2);
+            for (const buffer of data.buffers) {
+                const decodedBuffer = atob(buffer); // Decode Base64
+                for (let i = 0; i < decodedBuffer.length; i += 4) {
+                    const r = decodedBuffer.charCodeAt(i);
+                    const g = decodedBuffer.charCodeAt(i + 1);
+                    const b = decodedBuffer.charCodeAt(i + 2);
+                    const a = decodedBuffer.charCodeAt(i + 3);
+                    pixelArray.push(r, g, b, a);
                 }
-            } catch (error) {
-                output.textContent = `Error: ${error.message}`;
             }
+
+            // Final dictionary
+            const result = {
+                size: size,
+                pixels: pixelArray
+            };
+
+            output.textContent = JSON.stringify(result, null, 2);
+        } catch (error) {
+            output.textContent = `Error: ${error.message}`;
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
