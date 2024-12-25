@@ -61,12 +61,12 @@ def decode():
                 buffer.extend([r, g, b, a])
                 total_pixels += 1
         
-                # If the buffer has 1024 pixels (4096 values), yield the buffer
-                if len(buffer) >= 4096:  # 1024 pixels * 4 values (RGBA)
+                # If the buffer has 4096 pixels (16,276 values), yield the buffer
+                if len(buffer) >= 16276:  # 4096 pixels * 4 values (RGBA)
                     if not first_chunk:
                         yield ','  # Add a comma before the next chunk
                     first_chunk = False
-                    logging.debug(f'Yielding 1024 pixels (4096 values), total processed: {total_pixels}')
+                    logging.debug(f'Yielding 4096 pixels (16,276 values), total processed: {total_pixels}')
                     yield ','.join(map(str, buffer))  # Join buffer into a string without extra comma
                     buffer = []  # Reset the buffer
         
