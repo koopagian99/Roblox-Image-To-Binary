@@ -1,66 +1,36 @@
-import logging
-from flask import Flask, request, jsonify, Response
-from flask_cors import CORS
-import requests
+from flask import Flask, request, jsonify
 from PIL import Image
-from io import BytesIO
-import json
+import requests
+import io
 
-# Enable debugging and detailed logging
 app = Flask(__name__)
-app.debug = True  # Enable debug mode
-CORS(app)  # Enable CORS for all routes
 
-# Define batch size
-BATCH_SIZE = 1000  # Number of pixels per batch
-
-@app.route('/process', methods=['POST'])
-def process_image():
-    # Extract the image URL from the request
-    data = request.json
-    image_url = data.get('url')
-
-    # Print the received URL for debugging
-    print(f"Received image URL: {image_url}")
+@app.route('/decode', methods=['GET'])
+def decode_image():
+    asset_id = request.args.get('id')
+    if not asset_id:
+        return jsonify({"error": "No asset ID provided"}), 400
 
     try:
-        # Fetch the image data from the URL
-        response = requests.get(image_url)
-        response.raise_for_status()  # Raise an error if the request fails
+        # Fetch the image from Roblox
+        url = f"https://assetdelivery.roblox.com/v1/asset/?id={asset_id}"
+        response = requests.get(url)
+        response.raise_for_status()
 
-        # Open the image using PIL
-        img = Image.open(BytesIO(response.content))
+        # Decode the image
+        image = Image.open(io.BytesIO(response.content))
+        rgba_data = [
+            [image.getpixel((x, y)) for x in range(image.width)]
+            for y in range(image.height)
+        ]
 
-        # Convert the image to RGBA (if not already in that mode)
-        img = img.convert('RGBA')
-
-        # Extract pixel data
-        width, height = img.size
-        pixels = img.load()
-
-        def generate_batches():
-            yield json.dumps([width, height]) + "\n"
-            
-            # Generator function to yield batches of pixel data
-            batch = []
-            for y in range(height):
-                for x in range(width):
-                    r, g, b, a = pixels[x, y]
-                    batch.append([r, g, b, a])
-                    if len(batch) == BATCH_SIZE:
-                        yield json.dumps(batch) + "\n"
-                        batch = []
-            # Yield any remaining pixels in the last batch
-            if batch:
-                yield json.dumps(batch) + "\n"
-                
-        # Stream the response
-        return Response(generate_batches(), content_type='application/json')
-
-    except requests.exceptions.RequestException as e:
-        # Log the error and return a detailed message
-        print(f"Error fetching the image: {e}")
-        return jsonify({"error": str(e)}), 400
+        return jsonify({
+            "width": image.width,
+            "height": image.height,
+            "pixels": rgba_data
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
