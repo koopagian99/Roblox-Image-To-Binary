@@ -68,6 +68,7 @@ def decode():
             # Yield any remaining pixels in the buffer
             if buffer:
                 yield ','.join(map(str, buffer))
+            yield ']}'  # Close the JSON object
             
             logging.info('Generated pixel data sent back to client')
 
