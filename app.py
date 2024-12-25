@@ -4,6 +4,7 @@ import requests
 from PIL import Image
 import io
 import logging
+import base64
 
 app = Flask(__name__)
 CORS(app, origins=["https://koopagian99.github.io", "https://www.roblox.com"])  # Allow requests from your GitHub Pages domain
@@ -65,17 +66,18 @@ def decode():
                 
                 # If buffer is full (1024 pixels), yield it and reset the buffer
                 if pixel_count == 1024:
-                    yield ''.join(map(chr, buffer))
+                    # Encode the buffer as Base64 and yield it
+                    yield f'"{base64.b64encode(buffer).decode("utf-8")}"'
                     buffer_index = 0
                     pixel_count = 0
                     buffer = bytearray(1024 * 4)  # Reset buffer
             
             # Yield any remaining pixels that didn't fill the last buffer
             if pixel_count > 0:
-                yield ''.join(map(chr, buffer[:buffer_index]))
+                yield f'"{base64.b64encode(buffer[:buffer_index]).decode("utf-8")}"'
             
             yield ']}'
-
+            
             logging.info('Generated pixel data sent back to client')
 
         return Response(generate_chunks(), content_type='application/json')
