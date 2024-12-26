@@ -11,7 +11,7 @@
         pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
         progress { width: 100%; height: 20px; margin: 20px 0; }
         #downloadLink { display: none; margin-top: 10px; }
-        imageVisual { display: none; margin-top: 20px; }
+        #imageVisual { display: none; margin-top: 20px; max-width: 100%; }
     </style>
 </head>
 <body>
@@ -22,7 +22,7 @@
     <progress id="progressBar" value="0" max="100"></progress>
     <pre id="output"></pre>
     <a id="downloadLink" href="#" download>Download Decoded Texture</a>
-    <img id="imageVisual" src="" </img>
+    <img id="imageVisual" src="" alt="Asset Image" />
 
     <script>
     async function decodeTexture() {
@@ -30,27 +30,29 @@
         const output = document.getElementById('output');
         const progressBar = document.getElementById('progressBar');
         const downloadLink = document.getElementById('downloadLink');
-        const decodeButton = document.getElementById('decodeButton')
+        const decodeButton = document.getElementById('decodeButton');
         const imageVisual = document.getElementById('imageVisual');
 
         // Disable the button to prevent multiple decodes
         decodeButton.disabled = true;
-        
+
         // Clear previous output and download link
         output.textContent = '';
         progressBar.value = 0;
-        
         downloadLink.style.display = 'none';
         downloadLink.href = '#';
 
-        imageVisual.style.display = 'inline';
-        imageVisual.scr = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
-
         if (!assetId) {
             alert('Please enter an asset ID.');
+            decodeButton.disabled = false; // Re-enable the button if no asset ID
+            imageVisual.style.display = 'none';
             return;
         }
 
+        // Show the image while decoding
+        imageVisual.style.display = 'inline';
+        imageVisual.src = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
+        
         output.textContent = 'Processing...';
 
         try {
@@ -64,8 +66,8 @@
                 return;
             }
 
-            const totalSizeHeader = response.headers.get('Content-Length');
-            const estimatedSize = totalSizeHeader ? parseInt(totalSizeHeader, 10) : null;
+            // const totalSizeHeader = response.headers.get('Content-Length');
+            const estimatedSize = (imageVisual.width * imageVisual.height) * 4 : null;
 
             console.log(`Estimated size: ${estimatedSize ? estimatedSize + ' bytes' : 'Unknown'}`);
 
@@ -103,8 +105,6 @@
             downloadLink.download = `decoded_texture_${assetId}.json`;
             downloadLink.style.display = 'inline';
             downloadLink.textContent = 'Download Decoded Texture';
-
-            // imageVisual.scr =
 
             output.textContent = 'Decoding complete. Use the link below to download the data.';
         } catch (error) {
