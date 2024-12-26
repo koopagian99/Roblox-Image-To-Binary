@@ -70,14 +70,27 @@ def decode():
             logging.info(f'Generating pixel data for image {image.size}...')
             yield f'{{"size": {{"x": {image.width}, "y": {image.height}}}, "pixels": ['
         
-            # first_chunk = True
+            buffer = []
+            first_chunk = True
+        
+            # Iterate over the image pixels
             for r, g, b, a in image.getdata():
-                yield ','.join(map(str, [r, g, b, a]))
-                
-                # if not first_chunk:
-                #     yield ','  # Add a comma before the next chunk
-                # first_chunk = False
-                # yield ','.join(map(str, row))
+                # Add RGBA values to the buffer
+                buffer.append([r, g, b, a])
+        
+                # If the buffer has 1024 pixels (4096 values), yield the buffer
+                if len(buffer) >= width * 4:  # 1024 pixels * 4 values (RGBA)
+                    if not first_chunk:
+                        yield ','  # Add a comma before the next chunk
+                    first_chunk = False
+                    yield ','.join(map(str, buffer))  # Join buffer into a string without extra comma
+                    buffer = []  # Reset the buffer
+        
+            # Yield any remaining pixels in the buffer (even if they're less than 1024 pixels)
+            if buffer:
+                if not first_chunk:
+                    yield ','  # Add a comma before the final chunk
+                yield ','.join(map(str, buffer))
         
             yield ']}'
             logging.info('Generated pixel data sent back to client')
