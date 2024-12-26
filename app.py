@@ -78,7 +78,7 @@ def decode():
                     row.append([r, g, b, a])
                 
                 # if not first_chunk:
-                yield ','  # Add a comma before the next chunk
+                    yield ','  # Add a comma before the next chunk
                 # first_chunk = False
                 yield ','.join(map(str, row))
         
