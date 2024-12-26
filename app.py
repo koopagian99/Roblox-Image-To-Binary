@@ -48,39 +48,24 @@ def decode():
         logging.info(f'Image downloaded and decoded. Size: {width}x{height}')
         
         def generate_chunks():
-            logging.info(f'Generating pixel data for image {width}x{height}...')
-            
-            yield f'{{"size": {{"x": {width}, "y": {height}}}, "pixels": ['
-            buffer = []
-            total_pixels = 0  # Keep track of the total number of pixels processed
+            logging.info(f'Generating pixel data for image {image.size}...')
+            yield f'{{"size": {{"x": {image.width}, "y": {image.height}}}, "pixels": ['
+        
             first_chunk = True
-        
-            # Iterate over the image pixels
-            for r, g, b, a in image.getdata():
-                # Add RGBA values to the buffer
-                buffer.extend([r, g, b, a])
-                total_pixels += 1
-        
-                # If the buffer has 4096 pixels (16,276 values), yield the buffer
-                if len(buffer) >= 16276:  # 4096 pixels * 4 values (RGBA)
-                    if not first_chunk:
-                        yield ','  # Add a comma before the next chunk
-                    first_chunk = False
-                    logging.debug(f'Yielding 4096 pixels (16,276 values), total processed: {total_pixels}')
-                    yield ','.join(map(str, buffer))  # Join buffer into a string without extra comma
-                    buffer = []  # Reset the buffer
-        
-            # Yield any remaining pixels in the buffer (even if they're less than 1024 pixels)
-            if buffer:
+            for y in range(image.height):
+                row = []
+                for x in range(image.width):
+                    r, g, b, a = image.getpixel((x, y))
+                    row.extend([r, g, b, a])
+                
                 if not first_chunk:
-                    yield ','  # Add a comma before the final chunk
-                logging.debug(f'Yielding remaining pixels, total processed: {total_pixels}')
-                yield ','.join(map(str, buffer))
+                    yield ','  # Add a comma before the next chunk
+                first_chunk = False
+                yield ','.join(map(str, row))
         
             yield ']}'
-            logging.info(f'Total pixels processed: {total_pixels}')
-            
             logging.info('Generated pixel data sent back to client')
+
 
         return Response(generate_chunks(), content_type='application/json')
     except Exception as e:
