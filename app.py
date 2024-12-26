@@ -80,9 +80,7 @@ def decode():
                 # if not first_chunk:
                 #     yield ','  # Add a comma before the next chunk
                 # first_chunk = False
-                # yield ','.join(map(str, row))
-                     
-                yield map(str, row)
+                yield ','.join(map(str, row))
         
             yield ']}'
             logging.info('Generated pixel data sent back to client')
