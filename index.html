@@ -96,6 +96,8 @@
                 }
             }
 
+            console.log(`Real size: ${receivedBytes + ' bytes'}`);
+            
             // Create a Blob for downloading
             const blob = new Blob([result], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
