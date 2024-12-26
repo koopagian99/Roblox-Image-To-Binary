@@ -5,26 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roblox Texture Decoder</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        body { font-family: Papyrus, sans-serif; text-align: center; padding: 20px; }
         input, button { margin: 10px; padding: 10px; }
         button { padding: 10px 20px; cursor: pointer; }
         pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
         progress { width: 100%; height: 20px; margin: 20px 0; }
+        #downloadLink { display: none; margin-top: 10px; }
+        #imageVisual { display: none; margin-top: 20px; }
     </style>
 </head>
 <body>
     <h1>Roblox Texture Decoder</h1>
     <p>Enter a Roblox asset ID to decode its texture into RGBA data.</p>
     <input type="text" id="assetId" placeholder="Enter Asset ID">
-    <button onclick="decodeTexture()">Decode</button>
+    <button id="decodeButton" onclick="decodeTexture()">Decode</button>
     <progress id="progressBar" value="0" max="100"></progress>
     <pre id="output"></pre>
+    <a id="downloadLink" href="#" download>Download Decoded Texture</a>
+    <img id="imageVisual" src="" </img>
 
     <script>
     async function decodeTexture() {
         const assetId = document.getElementById('assetId').value;
         const output = document.getElementById('output');
         const progressBar = document.getElementById('progressBar');
+        const downloadLink = document.getElementById('downloadLink');
+        const decodeButton = document.getElementById('decodeButton')
+        const imageVisual = document.getElementById('imageVisual');
+
+        // Disable the button to prevent multiple decodes
+        decodeButton.disabled = true;
+        
+        // Clear previous output and download link
+        output.textContent = '';
+        progressBar.value = 0;
+        
+        downloadLink.style.display = 'none';
+        downloadLink.href = '#';
+
+        // imageVisual.style.display = 'none';
+        imageVisual.scr = `https://assetdelivery.roblox.com/v1/asset/?id=${asset_id}`;
 
         if (!assetId) {
             alert('Please enter an asset ID.');
@@ -32,7 +52,6 @@
         }
 
         output.textContent = 'Processing...';
-        progressBar.value = 0;
 
         try {
             console.log(`Starting request to decode asset ID: ${assetId}`);
@@ -58,6 +77,8 @@
             let done = false;
 
             while (!done) {
+                output.textContent = 'Decoding...';
+                
                 const { value, done: streamDone } = await reader.read();
                 done = streamDone;
 
@@ -77,16 +98,20 @@
             const blob = new Blob([result], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
-            // Create a download link
-            const downloadLink = document.createElement('a');
+            // Update the download link
             downloadLink.href = url;
             downloadLink.download = `decoded_texture_${assetId}.json`;
+            downloadLink.style.display = 'inline';
             downloadLink.textContent = 'Download Decoded Texture';
-            document.body.appendChild(downloadLink);
+
+            // imageVisual.scr =
 
             output.textContent = 'Decoding complete. Use the link below to download the data.';
         } catch (error) {
             output.textContent = `Error: ${error.message}`;
+        } finally {
+            // Re-enable the button after decoding is complete or in case of error
+            decodeButton.disabled = false;
         }
     }
     </script>
