@@ -47,51 +47,24 @@ def decode():
 
         logging.info(f'Image downloaded and decoded. Size: {width}x{height}')
         
-        # def generate_chunks():
-        #     logging.info(f'Generating pixel data for image {image.size}...')
-        #     yield f'{{"size": {{"x": {image.width}, "y": {image.height}}}, "pixels": ['
-        
-        #     first_chunk = True
-        #     for y in range(image.height):
-        #         row = []
-        #         for x in range(image.width):
-        #             r, g, b, a = image.getpixel((x, y))
-        #             row.append([r, g, b, a])
-                
-        #         if not first_chunk:
-        #             yield ','  # Add a comma before the next chunk
-        #         first_chunk = False
-        #         yield ','.join(map(str, row))
-        
-        #     yield ']}'
-        #     logging.info('Generated pixel data sent back to client')
-
         def generate_chunks():
             logging.info(f'Generating pixel data for image {image.size}...')
             yield f'{{"size": {{"x": {image.width}, "y": {image.height}}}, "pixels": ['
-
-            rowMade = 0
-            row = []
-                                                                                      
+        
+            first_chunk = True
             for y in range(image.height):
-                
+                row = []
                 for x in range(image.width):
                     r, g, b, a = image.getpixel((x, y))
                     row.append([r, g, b, a])
+                
+                if not first_chunk:
                     yield ','  # Add a comma before the next chunk
-                    rowMade = rowMade + 1
-
-                if rowMade == 4:
-                    yield ','.join(map(str, row))
-                    row = []
-                    rowMade = 0
-                    
-            if rowMade < 4:
-                    yield ','.join(map(str, row))
+                first_chunk = False
+                yield ','.join(map(str, row))
         
             yield ']}'
             logging.info('Generated pixel data sent back to client')
-
 
         return Response(generate_chunks(), content_type='application/json')
     except Exception as e:
