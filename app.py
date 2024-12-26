@@ -71,7 +71,7 @@ def decode():
             yield f'{{"size": {{"x": {image.width}, "y": {image.height}}}, "pixels": ['
         
             # first_chunk = True
-            or r, g, b, a in image.getdata():
+            for r, g, b, a in image.getdata():
                 yield ','.join(map(str, [r, g, b, a]))
                 
                 # if not first_chunk:
