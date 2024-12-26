@@ -75,7 +75,7 @@ def decode():
                 row = []
                 for x in range(image.width):
                     r, g, b, a = image.getpixel((x, y))
-                    row.append([r, g, b, a],)
+                    row.append([r, g, b, a])
                 
                 # if not first_chunk:
                 #     yield ','  # Add a comma before the next chunk
