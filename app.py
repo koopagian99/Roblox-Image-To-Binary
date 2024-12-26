@@ -78,7 +78,7 @@ def decode():
                 # Add RGBA values to the buffer
                 buffer.append([r, g, b, a])
         
-                if len(buffer) >= width * 8:
+                if len(buffer) >= width * 4:
                     if not first_chunk:
                         yield ','  # Add a comma before the next chunk
                     first_chunk = False
@@ -86,7 +86,7 @@ def decode():
                     buffer = []  # Reset the buffer
         
             # Yield any remaining pixels in the buffer (even if they're less than 1024 pixels)
-            if buffer:
+            if len(buffer) > 0:
                 if not first_chunk:
                     yield ','  # Add a comma before the final chunk
                 yield ','.join(map(str, buffer))
