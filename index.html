@@ -67,9 +67,9 @@
             }
 
             // const totalSizeHeader = response.headers.get('Content-Length');
-            const estimatedSize = (imageVisual.naturalWidth * imageVisual.naturalHeight) * 4;
+            const estimatedSize = ( (imageVisual.naturalWidth * imageVisual.naturalHeight) * 4 ) + 300;
 
-            console.log(`Estimated size: ${estimatedSize ? estimatedSize + ' bytes' : 'Unknown'}`);
+            console.log(`Estimated size: ${estimatedSize + ' bytes'}`);
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
