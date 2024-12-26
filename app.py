@@ -47,21 +47,42 @@ def decode():
 
         logging.info(f'Image downloaded and decoded. Size: {width}x{height}')
         
+        # def generate_chunks():
+        #     logging.info(f'Generating pixel data for image {image.size}...')
+        #     yield f'{{"size": {{"x": {image.width}, "y": {image.height}}}, "pixels": ['
+        
+        #     first_chunk = True
+        #     for y in range(image.height):
+        #         row = []
+        #         for x in range(image.width):
+        #             r, g, b, a = image.getpixel((x, y))
+        #             row.append([r, g, b, a])
+                
+        #         if not first_chunk:
+        #             yield ','  # Add a comma before the next chunk
+        #         first_chunk = False
+        #         yield ','.join(map(str, row))
+        
+        #     yield ']}'
+        #     logging.info('Generated pixel data sent back to client')
+
         def generate_chunks():
             logging.info(f'Generating pixel data for image {image.size}...')
             yield f'{{"size": {{"x": {image.width}, "y": {image.height}}}, "pixels": ['
         
-            first_chunk = True
+            # first_chunk = True
             for y in range(image.height):
                 row = []
                 for x in range(image.width):
                     r, g, b, a = image.getpixel((x, y))
-                    row.extend([r, g, b, a])
+                    row.append([r, g, b, a],)
                 
-                if not first_chunk:
-                    yield ','  # Add a comma before the next chunk
-                first_chunk = False
-                yield ','.join(map(str, row))
+                # if not first_chunk:
+                #     yield ','  # Add a comma before the next chunk
+                # first_chunk = False
+                # yield ','.join(map(str, row))
+                     
+                yield map(str, row)
         
             yield ']}'
             logging.info('Generated pixel data sent back to client')
